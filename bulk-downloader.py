@@ -63,6 +63,7 @@ def main():
                     remaining_size = total_length_mb - total_mb_downloaded
                     speed = float(total_mb_downloaded / elapsed_time)
                     speeds = speeds + speed;
+                    loops = loops + 1
                     sys.stdout.write("\r[%s%s] %.2f Mb of %.2f Mb %.2f Mb/s ETA: %s" % ('=' * done,
                          ' ' * (50-done),
                            total_mb_downloaded,
@@ -73,8 +74,7 @@ def main():
                 
                 sys.stdout.write("\n")
                 sys.stdout.flush()
-                loops = loops + 1
-            print("Elapsed time: %s, Avg Speed: %.2f" %(str(datetime.timedelta(seconds= elapsed_time)), float(speeds/loops)))
+            print("Elapsed time: %s, Avg Speed: %.2f Mb/s" %(str(datetime.timedelta(seconds= elapsed_time)), float(speeds/loops)))
             print(file_name + " saved to " + outputdir + " folder")
 
 if __name__ == "__main__":
