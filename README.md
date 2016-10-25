@@ -6,6 +6,9 @@ Bulk Downloader is a simple tool written in [``python``](https://python.org) to 
 ```
 git clone https://github.com/maikemota/buld-downloader
 ```
+#### Dependencies
+This tool needs the ``requests`` library, download it using ``pip install requests``
+
 ## Usage
 ```
 py bulk-downloader.py -f <fileWithLinks.txt> -o <outputDir>
