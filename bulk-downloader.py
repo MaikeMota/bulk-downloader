@@ -31,12 +31,12 @@ def main():
     if outputdir is None:
         print('Missing output_dir parameter.')
         sys.exit(2)
-    print('Output dir: ' + outputdir)
+    print('Output dir: ' + outputdir + "\n")
     if not os.path.exists(outputdir):
-        print(outputdir + " does not exists... creating...")
+        print(outputdir + " does not exists... creating...\n")
         os.makedirs(outputdir)
-        print(outputdir + " created!")
-    print('Opening ' + links + "...")
+        print(outputdir + " created!\n")
+    print('Opening ' + links + "...\n")
     with open(links) as links_file:
         for url in links_file.readlines():
             url = url.replace('\n', '')
@@ -58,26 +58,32 @@ def main():
                     if elapsed_time == 0:
                         elapsed_time = 1 
                     dl = dl + len(chunk)
-                    done = int(50 * dl / total_length)
+                    done = int(25 * dl / total_length)
                     total_mb_downloaded = float(dl / MB_SIZE)
                     remaining_size = total_length_mb - total_mb_downloaded
                     speed = float(total_mb_downloaded / elapsed_time)
                     speeds = speeds + speed;
                     loops = loops + 1
-                    sys.stdout.write("\r[%s%s] %.2f Mb of %.2f Mb %.2f Mb/s ETA: %s" % ('=' * done,
-                         ' ' * (50-done),
-                           total_mb_downloaded,
-                           float(total_length_mb),
-                           speed,
-                           str(datetime.timedelta(seconds=int(remaining_size/speed)))))
-                    sys.stdout.flush()   
-                
+                    sys.stdout.write('\r[%s%s] %.2f Mb of %.2f Mb %.2f Mb/s ETA: %s' % 
+                        (
+                            '=' * done, ' ' * (25-done),
+                            total_mb_downloaded,
+                            float(total_length_mb),
+                            speed,
+                            str(datetime.timedelta(seconds=int(remaining_size/speed)))
+                        )
+                    )
+                    sys.stdout.flush()  
+                sys.stdout.write("\n")
                 sys.stdout.write("\n")
                 sys.stdout.flush()
-            print("Elapsed time: %s, Avg Speed: %.2f Mb/s" %(str(datetime.timedelta(seconds= elapsed_time)), float(speeds/loops)))
+            print("Elapsed time: %s, Avg Speed: %.2f Mb/s" % 
+            (
+                str(datetime.timedelta(seconds= elapsed_time)), float(speeds/loops))
+            )
             print(file_name + " saved to " + outputdir + " folder")
 
 if __name__ == "__main__":
-       main()
+    main()
     
     
