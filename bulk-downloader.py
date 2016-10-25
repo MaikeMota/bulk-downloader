@@ -29,14 +29,14 @@ def main():
         print('Missing links.txt parameter.')
         sys.exit(2)
     if outputdir is None:
-        print('Missing output_dir parameter.')
+        print('Missing output_dir parameter.')  
         sys.exit(2)
-    print('Output dir: ' + outputdir + "\n")
+    print('Output dir: ' + outputdir)
     if not os.path.exists(outputdir):
-        print(outputdir + " does not exists... creating...\n")
+        print(outputdir + " does not exists... creating...")
         os.makedirs(outputdir)
-        print(outputdir + " created!\n")
-    print('Opening ' + links + "...\n")
+        print(outputdir + " created!")
+    print('Opening ' + links + "...")
     with open(links) as links_file:
         for url in links_file.readlines():
             url = url.replace('\n', '')
