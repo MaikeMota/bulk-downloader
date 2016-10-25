@@ -12,7 +12,7 @@ py bulk-downloader.py -f <fileWithLinks.txt> -o <outputDir>
  ```
 ### To Do: 
   - Add telegram integration to alert user when the downloads ends.
-  - ...
+  - Add suport to download N files at same time.
 
 #### Has any suggestion to improve this tool?
 Send me a e-mail at ``contato@maikemota.com.br`` and let me know!
