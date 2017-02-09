@@ -1,2 +1,4 @@
 downloads/
 **.txt
+.vscode/
+__pycache__/

@@ -1,18 +1,23 @@
-import requests
-import sys, getopt, os
-import time
-import datetime
+import sys
+import getopt
+import os
+import queue
+import threading
+from FileDownloader import FileDownloader
 
-CHUNK_SIZE = 1024
-MB_SIZE = 1048576
+MAX_PARALLELS_DOWNLOAD = 5
 
-links = None
-outputdir = None
+LINKS_PATH = None
+OUTPUT_DIR = None
 
-def main():
+
+def handle_arguments(sys_args):
+    """
+        Handle arguments
+    """
     try:
-        opts, args = getopt.getopt(sys.argv[1:],"hf:o:",["file=","outdir="])
-    except getopt.GetoptError: 
+        opts, args = getopt.getopt(sys_args, "hf:o:", ["file=", "outdir="])
+    except getopt.GetoptError:
         print('usage: bulk-downloader.py -f <link.txt> -o <output_dir>')
         sys.exit(2)
 
@@ -21,69 +26,68 @@ def main():
             print('usage: bulk-downloader.py -f <link.txt> -o <output_dir>')
             sys.exit()
         elif opt in ("-f", "--file"):
-             links = arg
+            global LINKS_PATH
+            LINKS_PATH = arg
         elif opt in ("-o", "--outdir"):
-             outputdir = arg
+            global OUTPUT_DIR
+            OUTPUT_DIR = arg
+        elif opt in ('-p', "--parallels"):
+            global MAX_PARALLELS_DOWNLOAD
+            MAX_PARALLELS_DOWNLOAD = int(arg)
 
-    if links is None:
-        print('Missing links.txt parameter.')
+    if LINKS_PATH is None:
+        print('Missing links file parameter.')
         sys.exit(2)
-    if outputdir is None:
-        print('Missing output_dir parameter.')  
+
+    if OUTPUT_DIR is None:
+        print('Missing outputdir parameter.')
         sys.exit(2)
-    print('Output dir: ' + outputdir)
-    if not os.path.exists(outputdir):
-        print(outputdir + " does not exists... creating...")
-        os.makedirs(outputdir)
-        print(outputdir + " created!")
-    print('Opening ' + links + "...")
-    with open(links) as links_file:
-        for url in links_file.readlines():
-            url = url.replace('\n', '')
-            last_slash_index = url.rindex('/')
-            file_name = url[last_slash_index+1 : len(url)]
-            res = requests.get(url, stream=True)
-            total_length = res.headers.get('content-length')
-            print("downloading " + file_name)
-            dl = 0
-            total_length = int(total_length)            
-            loops = 0
-            speeds = 0
-            with open(outputdir + "/" +  file_name, 'wb') as file:
-                total_length_mb = total_length / MB_SIZE
-                start_time = time.mktime(time.localtime())
-                for chunk in res.iter_content(CHUNK_SIZE):
-                    file.write(chunk)
-                    elapsed_time  = time.mktime(time.localtime()) - start_time
-                    if elapsed_time == 0:
-                        elapsed_time = 1 
-                    dl = dl + len(chunk)
-                    done = int(25 * dl / total_length)
-                    total_mb_downloaded = float(dl / MB_SIZE)
-                    remaining_size = total_length_mb - total_mb_downloaded
-                    speed = float(total_mb_downloaded / elapsed_time)
-                    speeds = speeds + speed;
-                    loops = loops + 1
-                    sys.stdout.write('\r[%s%s] %.2f Mb of %.2f Mb %.2f Mb/s ETA: %s' % 
-                        (
-                            '=' * done, ' ' * (25-done),
-                            total_mb_downloaded,
-                            float(total_length_mb),
-                            speed,
-                            str(datetime.timedelta(seconds=int(remaining_size/speed)))
-                        )
-                    )
-                    sys.stdout.flush()  
-                sys.stdout.write("\n")
-                sys.stdout.write("\n")
-                sys.stdout.flush()
-            print("Elapsed time: %s, Avg Speed: %.2f Mb/s" % 
-            (
-                str(datetime.timedelta(seconds= elapsed_time)), float(speeds/loops))
-            )
-            print(file_name + " saved to " + outputdir + " folder")
+
+
+def main():
+    """
+        Main application function.
+    """
+    downloaders = []
+    handle_arguments(sys.argv[1:])
+    print('Output dir: ' + OUTPUT_DIR)
+    if not os.path.exists(LINKS_PATH):
+        print(LINKS_PATH + " does not exists... exiting application")
+        sys.exit(2)
+
+    if not os.path.exists(OUTPUT_DIR):
+        print(OUTPUT_DIR + " does not exists... creating...")
+        os.makedirs(OUTPUT_DIR)
+        print(OUTPUT_DIR + " created!")
+
+    print('Opening ' + LINKS_PATH + "...")
+    try:
+        with open(LINKS_PATH) as links_file:
+
+            urls = links_file.readlines()
+            url = urls.pop()
+
+            while url != None:
+
+                if len(downloaders) != MAX_PARALLELS_DOWNLOAD:
+                    downloader = FileDownloader(url, OUTPUT_DIR)
+                    downloaders.append(downloader)
+                    print('downloaders: ' + str(len(downloaders)))
+                if len(downloaders) == MAX_PARALLELS_DOWNLOAD:
+                    for downloader in downloaders:
+                        downloader.start()
+                        downloader.join()                    
+                    print('Starting threads: ' + str(len(downloaders)))
+                    is_running = True
+                    while is_running:
+                        for downloader in downloaders:
+                            is_running = is_running and downloader.is_alive()
+
+    except KeyboardInterrupt:
+        for downloader in downloaders:
+            downloader.stop()
+        print('\nO Programa foi encerrado pelo usuário.')
+
 
 if __name__ == "__main__":
     main()
-    
-    

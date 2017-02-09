@@ -24,7 +24,7 @@ py bulk-downloader.py -f <fileWithLinks.txt> -o <outputDir>
 
 #### Has any suggestion to improve this tool?
 
-Send me a e-mail at`contato@maikemota.com.br`and let me know!
+Send me a e-mail at `contato@maikemota.com.br` and let me know!
 
 #### Have you implemented an awesome feature?
 
