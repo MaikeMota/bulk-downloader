@@ -14,8 +14,9 @@ class FileDownloader(threading.Thread):
         File Downloader
     """
 
-    def __init__(self, url, destination):
+    def __init__(self, id, url, destination):
         threading.Thread.__init__(self)
+        self.id = id
         self.output_lock = threading.Lock()
         url = url.replace('\n', '')
         self.url = url
@@ -32,7 +33,6 @@ class FileDownloader(threading.Thread):
         threading.Thread.run(self)
         res = requests.get(self.url, stream=True)
         total_length = res.headers.get('content-length')
-        print("downloading " + self.file_name)
         self.total_length = int(total_length)
         loops = 0
         speeds = 0
@@ -54,8 +54,12 @@ class FileDownloader(threading.Thread):
                 speed = float(total_mb_downloaded / elapsed_time)
                 speeds = speeds + speed
                 loops = loops + 1
-                sys.stdout.write('\r[%s%s] %.2f Mb of %.2f Mb %.2f Mb/s ETA: %s' %
+                
+                #sys.stdout.write(('%s ' % (self.file_name))
+                #sys.stdout.write(('\r\n')
+                sys.stdout.write('\r%s[%s%s] %.2f Mb of %.2f Mb %.2f Mb/s ETA: %s' %
                                  (
+                                     '\n' * self.id,
                                      '=' * done, ' ' * (25 - done),
                                      total_mb_downloaded,
                                      float(total_length_mb),
@@ -65,12 +69,12 @@ class FileDownloader(threading.Thread):
                                  ))
                 sys.stdout.flush()
 
-            sys.stdout.write("\n")
-            sys.stdout.write("\n")
-            sys.stdout.flush()
-        print("Elapsed time: %s, Avg Speed: %.2f Mb/s" %
-              (str(datetime.timedelta(seconds=elapsed_time)), float(speeds / loops)))
-        print(self.file_name + " saved to " + self.destination + " folder")
+            #sys.stdout.write("\n")
+            #sys.stdout.write("\n")
+            #sys.stdout.flush()
+       # print("Elapsed time: %s, Avg Speed: %.2f Mb/s" %
+        #      (str(datetime.timedelta(seconds=elapsed_time)), float(speeds / loops)))
+       # print(self.file_name + " saved to " + self.destination + " folder")
 
     def stop(self):
         """
