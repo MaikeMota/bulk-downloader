@@ -5,7 +5,7 @@ import queue
 import threading
 from FileDownloader import FileDownloader
 
-MAX_PARALLELS_DOWNLOAD = 5
+MAX_PARALLELS_DOWNLOAD = 2
 
 LINKS_PATH = None
 OUTPUT_DIR = None
@@ -66,22 +66,26 @@ def main():
 
             urls = links_file.readlines()
             url = urls.pop()
-
+            id = 0
             while url != None:
 
                 if len(downloaders) != MAX_PARALLELS_DOWNLOAD:
-                    downloader = FileDownloader(url, OUTPUT_DIR)
+                    id = id + 1
+                    downloader = FileDownloader(id,url, OUTPUT_DIR)
                     downloaders.append(downloader)
-                    print('downloaders: ' + str(len(downloaders)))
+
                 if len(downloaders) == MAX_PARALLELS_DOWNLOAD:
                     for downloader in downloaders:
-                        downloader.start()
-                        downloader.join()                    
-                    print('Starting threads: ' + str(len(downloaders)))
-                    is_running = True
-                    while is_running:
+                        if not downloader.is_alive():
+                            downloader.start()
+                        
+                    while len(downloaders) > MAX_PARALLELS_DOWNLOAD:
                         for downloader in downloaders:
-                            is_running = is_running and downloader.is_alive()
+                            if not downloader.is_alive():
+                                downloaders.remove(downloader)
+                            
+                id = 0;
+                url = urls.pop()
 
     except KeyboardInterrupt:
         for downloader in downloaders:
