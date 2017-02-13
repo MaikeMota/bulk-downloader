@@ -55,20 +55,6 @@ class FileDownloader(threading.Thread):
                 speeds = speeds + speed
                 loops = loops + 1
                 
-                #sys.stdout.write(('%s ' % (self.file_name))
-                #sys.stdout.write(('\r\n')
-                sys.stdout.write('\r%s[%s%s] %.2f Mb of %.2f Mb %.2f Mb/s ETA: %s' %
-                                 (
-                                     '\n' * self.id,
-                                     '=' * done, ' ' * (25 - done),
-                                     total_mb_downloaded,
-                                     float(total_length_mb),
-                                     speed,
-                                     str(datetime.timedelta(
-                                         seconds=int(remaining_size / speed)))
-                                 ))
-                sys.stdout.flush()
-
             #sys.stdout.write("\n")
             #sys.stdout.write("\n")
             #sys.stdout.flush()

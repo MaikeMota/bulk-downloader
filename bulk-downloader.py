@@ -63,29 +63,37 @@ def main():
     print('Opening ' + LINKS_PATH + "...")
     try:
         with open(LINKS_PATH) as links_file:
-
-            urls = links_file.readlines()
-            url = urls.pop()
+            url = links_file.readline()
             id = 0
             while url != None:
-
-                if len(downloaders) != MAX_PARALLELS_DOWNLOAD:
+                if MAX_PARALLELS_DOWNLOAD > len(downloaders):
                     id = id + 1
                     downloader = FileDownloader(id,url, OUTPUT_DIR)
+                    print('starting new thread')
                     downloaders.append(downloader)
-
-                if len(downloaders) == MAX_PARALLELS_DOWNLOAD:
-                    for downloader in downloaders:
-                        if not downloader.is_alive():
-                            downloader.start()
-                        
+                    downloader.start()
+                else:     
                     while len(downloaders) > MAX_PARALLELS_DOWNLOAD:
                         for downloader in downloaders:
+                            sys.stdout.write('%s ' % self.file_name)
                             if not downloader.is_alive():
+                                print('thread removed')
                                 downloaders.remove(downloader)
+                            # sys.stdout.write(('\r\n')
+                            # sys.stdout.write('\r%s[%s%s] %.2f Mb of %.2f Mb %.2f Mb/s ETA: %s' %
+                            #                 (
+                            #                     '\n' * self.id,
+                            #                     '=' * done, ' ' * (25 - done),
+                            #                     total_mb_downloaded,
+                            #                     float(total_length_mb),
+                            #                     speed,
+                            #                     str(datetime.timedelta(
+                            #                         seconds=int(remaining_size / speed)))
+                            #                 ))
+                            # sys.stdout.flush()
                             
-                id = 0;
-                url = urls.pop()
+                id = 0
+                url = links_file.readline()
 
     except KeyboardInterrupt:
         for downloader in downloaders:
