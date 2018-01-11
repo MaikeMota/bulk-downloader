@@ -5,7 +5,7 @@ Bulk Downloader is a simple tool written in [`python`](https://python.org) to he
 ### Installation
 
 ```
-git clone https://github.com/maikemota/buld-downloader
+git clone https://github.com/maikemota/bulk-downloader
 ```
 #### Dependencies
 
